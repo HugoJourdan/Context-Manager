@@ -11,21 +11,21 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Context Manager</string>
+	<string>findContext</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>UpdateFeedURL</key>
-	<string>____OnlineUrlToThisPlist____</string>
+	<string>https://raw.githubusercontent.com/HugoJourdan/Context-Manager/blob/main/FindContext.glyphsPlugin/Contents/Info.plist</string>
 	<key>productPageURL</key>
 	<string>https://github.com/HugoJourdan/Context-Manager</string>
 	<key>productReleaseNotes</key>
-	<string>None</string>
+	<string>Release</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright, Hugo Jourdan, 2022</string>
 	<key>NSPrincipalClass</key>
-	<string>findContext</string>
+	<string>contextManager</string>
 	<key>PyMainFileNames</key>
 	<array>
 		<string>plugin.py</string>

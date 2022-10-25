@@ -24,7 +24,7 @@ from GlyphsApp.UI import GlyphView
 from AppKit import NSColor
 from vanilla import *
 
-class findContext(GeneralPlugin):
+class contextManager(GeneralPlugin):
 
 	@objc.python_method
 	def settings(self):
@@ -161,9 +161,6 @@ class findContext(GeneralPlugin):
 		if not Glyphs.defaults["com.HugoJourdan.CM_T"]:
 			Glyphs.defaults["com.HugoJourdan.CM_T"] = current_time = datetime.now().strftime("%d/%m/%Y")
 
-
-
-
 	@objc.python_method
 	def __del__(self):
 		Glyphs.removeCallback(self.update)
@@ -171,12 +168,11 @@ class findContext(GeneralPlugin):
 	@objc.python_method
 	def update(self, sender):
 
-
 		try:
 			font = Glyphs.font
 			if font.selectedLayers:
-				if not Glyphs.defaults["com.HugoJourdan.findContext"]:
-					Glyphs.defaults["com.HugoJourdan.findContext"] = font.glyphs["A"].name
+				if not Glyphs.defaults["com.HugoJourdan.contextManager"]:
+					Glyphs.defaults["com.HugoJourdan.contextManager"] = font.glyphs["A"].name
 
 				if font.selectedLayers:
 					self.selectedChar = font.selectedLayers[0]
@@ -184,8 +180,8 @@ class findContext(GeneralPlugin):
 					self.selectedChar = font.glyphs["A"].layers[0]
 
 				# If selected char changed :
-				if self.selectedChar.parent.name != Glyphs.defaults["com.HugoJourdan.findContext"] and self.w.isVisible():
-					Glyphs.defaults["com.HugoJourdan.findContext"] = self.selectedChar.parent.name
+				if self.selectedChar.parent.name != Glyphs.defaults["com.HugoJourdan.contextManager"] and self.w.isVisible():
+					Glyphs.defaults["com.HugoJourdan.contextManager"] = self.selectedChar.parent.name
 					self.updateWindow()
 		except:pass
 
