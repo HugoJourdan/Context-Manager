@@ -160,14 +160,13 @@ class contextManager(GeneralPlugin):
 	def start(self):
 		newMenuItem = NSMenuItem("Context Manager", self.openWindow_)
 		Glyphs.menu[EDIT_MENU].append(newMenuItem)
-		newMenuItem = NSMenuItem("Set Context...", self.openWindow_)
+		newMenuItem = NSMenuItem("Set Context...", self.setContext_)
 		Glyphs.menu[EDIT_MENU].append(newMenuItem)
 
 		Glyphs.addCallback(self.update, UPDATEINTERFACE)
 
 		if not Glyphs.defaults["com.HugoJourdan.CM_T"]:
 			Glyphs.defaults["com.HugoJourdan.CM_T"] = current_time = datetime.now().strftime("%d/%m/%Y")
-
 	@objc.python_method
 	def __del__(self):
 		Glyphs.removeCallback(self.update)
@@ -191,6 +190,140 @@ class contextManager(GeneralPlugin):
 					Glyphs.defaults["com.HugoJourdan.contextManager"] = self.selectedChar.parent.name
 					self.updateWindow()
 		except:pass
+
+	@objc.python_method
+	def setContext_(self, sender):			
+		import random
+		from datetime import datetime
+		import os
+
+		self.font = Glyphs.font
+
+		t1 = datetime.strptime(Glyphs.defaults["com.HugoJourdan.CM_T"], "%d/%m/%Y")
+		t2 = datetime.strptime(datetime.now().strftime("%d/%m/%Y"), "%d/%m/%Y")
+		difference = t2 - t1
+
+		if difference.days < 30:
+			with open(self.jsonPath) as json_file:
+				contextDic = json.load(json_file)
+
+			# Use current selected Glyph EditView or FontView
+			try:
+				if self.font.selectedLayers:
+					selectedChar = self.font.selectedLayers[0].parent
+				else:
+					selectedChar = self.font.selection[0]
+
+				c = selectedChar.name
+
+				wordList = []
+				if c in contextDic["Glyph"]:
+
+					# If "Class" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.contextClassCheckBox"] == True:
+						for CLASS in contextDic["ContextClass"]:
+							if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
+								for item in contextDic["ContextClass"][CLASS]["Context"]:
+									wordList.append(item)
+
+								#wordList.append(glyphsString)
+
+					# If "Context" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.contextWordsCheckBox"] == True:
+						if c in contextDic["Glyph"]:
+							for item in contextDic["Glyph"][c]["ContextWords"]:
+								wordList.append(item)
+
+					# If "String" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.contextStringCheckBox"] == True:
+						if c in contextDic["Glyph"]:
+							for item in contextDic["Glyph"][c]["ContextStrings"]:
+								wordList.append(item)
+
+					# If "Smart" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.smartContextCheckBox"] == True:
+						addString = []
+						classGlyphs = {}
+
+						for CLASS in contextDic["ContextClass"]:
+							if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
+								addString = f"{c} "
+								for glyph in [glyph for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]] :
+									if glyph != c:
+										addString += f"{glyph}{c}{glyph} "
+								wordList.append(addString)
+								classGlyphs = ""
+								for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]:
+										classGlyphs += glyph
+								wordList.append(classGlyphs)
+
+					# If "Spacing" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.spacingContextCheckBox"] == True:
+						wordList.append(f"HH{c}HH{c}OO{c}OO{c}nn{c}nn{c}oo{c}oo")
+
+					# If "Uppercase" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.uppercaseCheckBox"] == True:
+						wordListCopy = []
+						for word in wordList:
+							wordCopy = ""
+							for char in word:
+								if char != selectedChar.string:
+									wordCopy += char.upper()
+								else:
+									wordCopy += char
+							wordListCopy.append(wordCopy)
+						wordList = wordListCopy
+
+					# If "Lowercase" filter is checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.lowercaseCheckBox"] == True:
+						wordListCopy = []
+						for word in wordList:
+							wordCopy = ""
+							for char in word:
+								if char != selectedChar.string:
+									wordCopy += char.lower()
+								else:
+									wordCopy += char
+							wordListCopy.append(wordCopy)
+						wordList = wordListCopy
+
+					# If "Start" or "Include" filter are checked
+					if Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"] == True and Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"] == True:
+						pass
+					elif Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"] == True:
+						tempList = wordList.copy()
+						for word in tempList:
+							if word[0] != selectedChar.string:
+								wordList.remove(word)
+					elif Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"] == True:
+						tempList = wordList.copy()
+						for word in tempList:
+							if word[0] == selectedChar.string:
+								wordList.remove(word)
+
+					if not wordList:
+						Message(f"Check if you have set any context\n or selected filters.", title=f"No Context found\n for [{c}] glyph", OKButton=None)
+						pass
+						
+					currenTabText = self.font.currentTab.text
+					pickedWord = random.choice(wordList)
+
+					if len(wordList)>1:
+						# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
+						while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+							pickedWord = random.choice(wordList)
+
+					INDEX = pickedWord.find(selectedChar.string)
+					
+					self.font.currentTab.text = pickedWord
+					self.font.currentTab.textCursor = INDEX
+				else:
+					Message("No content set in selected Filter.")
+
+
+			except:TypeError("Open a font or select a glyph")
+		else:
+			Message("Your FindContext trial period is over\nTo buy a licence, visit\nwww.lience.com", title='Context Manager', OKButton=None)
 
 	@objc.python_method
 	def updateWindow(self):
@@ -254,8 +387,6 @@ class contextManager(GeneralPlugin):
 
 		self.updateGlyphClasses()
 
-
-
 	@objc.python_method
 	def filterClassCallback(self, sender):
 		if self.w.tabs[1].filterClass.get():
@@ -292,8 +423,6 @@ class contextManager(GeneralPlugin):
 
 	def openWindow_(self, sender):
 		# Fix possible not Context Class linked
-		
-		
 				
 		t1 = datetime.strptime(Glyphs.defaults["com.HugoJourdan.CM_T"], "%d/%m/%Y")
 		t2 = datetime.strptime(datetime.now().strftime("%d/%m/%Y"), "%d/%m/%Y")
@@ -457,7 +586,6 @@ class contextManager(GeneralPlugin):
 		# If (-) button is pressed
 		if value == 1:
 			if self.w.tabs[1].contextClassGlyphs.getSelection():
-				print(self.w.tabs[1].contextClassGlyphs.getSelection())
 				i = self.w.tabs[1].listOfContextClass.getSelection()[0]
 				selectedClass = list(self.jsonFile["ContextClass"].keys())[i]
 
@@ -488,7 +616,6 @@ class contextManager(GeneralPlugin):
 				selectedClass = list(self.jsonFile["ContextClass"].keys())[i]
 
 				for glyph in self.font.selection:
-					print(glyph.name.split(".locl")[0])
 					if glyph.string:
 						addGlyph = glyph.string
 					if self.font.glyphs[glyph.name.split(".locl")[0]]:

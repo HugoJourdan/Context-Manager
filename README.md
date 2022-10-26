@@ -41,14 +41,16 @@ For that go in `Glyphs > Preferences`, in `Shortcuts` section, search `Set Conte
 
 <br><br>
 
-## Config File
-At first start, Context Manager will create a JSON file **Context Manager.json** store here :  
-`~/Library/Application Support/Glyphs 3/info/ContextManager.json`
+## How it work
 
-This file can be edited directly from the Context Manager UI or by being open with a text editor like Sublime Text or VSCode. To share your Context Manager settings, you just have to share this file and placed it here:  
-`~/Library/Application Support/Glyphs 3/info`
+1. Each glyph can be assigned Context Classes, Context Words and Context String.  
+2. Filters are used to choose which Context source are enable or disable.  
+3. When you select a glyph, running `Set Context…` will pick randomly a Context between activated filters, and use it in your current tab.
 
 <br><br>
+
+
+
 
 ## Context Manager UI
 <details><summary> Show documentation</summary>
@@ -124,6 +126,14 @@ This file can be edited directly from the Context Manager UI or by being open wi
 &emsp;&ensp;Text entry control, where you can add strings that contain glyph from selected Context Class.
 </details>
 
+<br><br>
+
+## Config File
+At first start, Context Manager will create a JSON file **Context Manager.json** store here :  
+`~/Library/Application Support/Glyphs 3/info/ContextManager.json`
+
+This file can be edited directly from the Context Manager UI or by being open with a text editor like Sublime Text or VSCode. To share your Context Manager settings, you just have to share this file and placed it here:  
+`~/Library/Application Support/Glyphs 3/info`
 
 <br><br>
 
