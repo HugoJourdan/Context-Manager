@@ -1,12 +1,12 @@
 <p align="center">
-  <img width="200" height="200" src="FindContext.png">
+  <img width="200" height="200" src="images/findContext.png">
 </p>
 
 # Context Manager
 >### Build your own contextual words/strings library of and access it dynamically.  
 
 
-<img src="contextManager-screenshot.jpg" width="700">
+<img src="images/contextManager-screenshot.jpg" width="700">
 
 <br>
 Context Manager is a Glyphs 3 Plugin which is intended to help and speed up your workflow when you are looking for a word/string to proof a specific glyph. It allow user to manage contextual words/strings for each glyph and to create contextual group.  
@@ -52,7 +52,7 @@ This file can be edited directly from the Context Manager UI or by being open wi
 ## Context Manager UI
 <details><summary> Show documentation</summary>
 
-![alt text](contextManagerUI.jpg "Context Mangaer Screenshot")
+![alt text](images/contextManagerUI.jpg "Context Mangaer Screenshot")
 
 ### 1. Filters
 &emsp;&ensp;Filters allow user to choose which context to use when `Edit > Find Context` is triggered.  
