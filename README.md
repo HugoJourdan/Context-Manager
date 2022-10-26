@@ -4,7 +4,7 @@
 </p>
 
 # Context Manager
->### Build your own contextual words/strings library of and access it dynamically.  
+>### Build your own contextual words/strings library and access it dynamically.  
 
 
 <img src="images/contextManager-screenshot.jpg" width="700">
