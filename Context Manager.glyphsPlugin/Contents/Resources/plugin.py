@@ -211,8 +211,6 @@ class contextManager(GeneralPlugin):
 			try:
 				if self.font.selectedLayers:
 					selectedChar = self.font.selectedLayers[0].parent
-				else:
-					selectedChar = self.font.selection[0]
 
 				c = selectedChar.name
 
@@ -304,21 +302,20 @@ class contextManager(GeneralPlugin):
 					if not wordList:
 						Message(f"Check if you have set any context\n or selected filters.", title=f"No Context found\n for [{c}] glyph", OKButton=None)
 						pass
-						
-					currenTabText = self.font.currentTab.text
+
 					pickedWord = random.choice(wordList)
-
-					if len(wordList)>1:
-						# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
-						while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
-							pickedWord = random.choice(wordList)
-
+					if self.font.currentTab:
+						currenTabText = self.font.currentTab.text
+						if len(wordList)>1:
+							# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
+							while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+								pickedWord = random.choice(wordList)
 					INDEX = pickedWord.find(selectedChar.string)
-					
-					self.font.currentTab.text = pickedWord
+					if not self.font.currentTab:
+						self.font.newTab(pickedWord)
+					else:
+						self.font.currentTab.text = pickedWord
 					self.font.currentTab.textCursor = INDEX
-				else:
-					Message("No content set in selected Filter.")
 
 
 			except:TypeError("Open a font or select a glyph")
@@ -676,8 +673,6 @@ class contextManager(GeneralPlugin):
 
 			return True
 		except:
-			import traceback
-			print(traceback.format_exc())
 			return False
 
 	# Update "Glyph Words" in [Context Glyph] tab.
