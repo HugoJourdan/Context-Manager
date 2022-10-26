@@ -49,7 +49,7 @@ class contextManager(GeneralPlugin):
 			self.jsonFile = json.load(json_file)
 
 
-		wW, wH = 760, 450
+		wW, wH = 760, 500
 		self.w = FloatingWindow((wW, wH), "Context Manager")
 		self.w.tabs = Tabs((10, 10, -10, -40), ["Context Glyph", "Context Class"], sizeStyle='small', callback=self.switchTabCallback)
 		tab1 = self.w.tabs[0]
@@ -95,6 +95,10 @@ class contextManager(GeneralPlugin):
 
 		tab1.lowercaseCheckBox = CheckBox((10, 330, -10, 20), "Lowercase", callback=self.toggleOptionCallback, sizeStyle="small")
 		tab1.uppercaseCheckBox = CheckBox((100, 330, -10, 20), "Uppercase", callback=self.toggleOptionCallback, sizeStyle="small")
+
+		tab1.sliderText = TextBox((10, 374, 170, 17), f"Show [x] context", sizeStyle='small')
+		tab1.slider = Slider((10, 390, 170, 22),tickMarkCount=10, stopOnTickMarks=True, minValue=1, maxValue=10, callback=self.slideTextUpdateCallback, sizeStyle="small")
+		
 
 
 		#-------------------------------------------#
@@ -154,8 +158,13 @@ class contextManager(GeneralPlugin):
 		self.w.makeKey()
 		self.w.center()
 
+	@objc.python_method
+	def slideTextUpdateCallback(self,sender):
+		value = round(sender.get())
+		Glyphs.defaults["com.HugoJourdan.ContextManager.slider"] = value
+		
+		self.w.tabs[0].sliderText.set(f"Show {value} context")
 
-  
 	@objc.python_method
 	def start(self):
 		newMenuItem = NSMenuItem("Context Manager", self.openWindow_)
@@ -167,6 +176,7 @@ class contextManager(GeneralPlugin):
 
 		if not Glyphs.defaults["com.HugoJourdan.CM_T"]:
 			Glyphs.defaults["com.HugoJourdan.CM_T"] = current_time = datetime.now().strftime("%d/%m/%Y")
+
 	@objc.python_method
 	def __del__(self):
 		Glyphs.removeCallback(self.update)
@@ -245,11 +255,11 @@ class contextManager(GeneralPlugin):
 
 						for CLASS in contextDic["ContextClass"]:
 							if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
-								addString = f"{c} "
-								for glyph in [glyph for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]] :
-									if glyph != c:
-										addString += f"{glyph}{c}{glyph} "
-								wordList.append(addString)
+								# addString = f"{c} "
+								# for glyph in [glyph for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]] :
+								# 	if glyph != c:
+								# 		addString += f"{glyph}{c}{glyph} "
+								# wordList.append(addString)
 								classGlyphs = ""
 								for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]:
 										classGlyphs += glyph
@@ -303,19 +313,36 @@ class contextManager(GeneralPlugin):
 						Message(f"Check if you have set any context\n or selected filters.", title=f"No Context found\n for [{c}] glyph", OKButton=None)
 						pass
 
+					nbWords = Glyphs.defaults["com.HugoJourdan.ContextManager.slider"]
+					showContext = []
 					pickedWord = random.choice(wordList)
-					if self.font.currentTab:
-						currenTabText = self.font.currentTab.text
-						if len(wordList)>1:
-							# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
-							while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+
+					if len(wordList) > nbWords:
+						for i in range (nbWords):
+							while pickedWord in showContext:
 								pickedWord = random.choice(wordList)
-					INDEX = pickedWord.find(selectedChar.string)
-					if not self.font.currentTab:
-						self.font.newTab(pickedWord)
+							
+							if self.font.currentTab:
+								currenTabText = self.font.currentTab.text
+								if len(wordList)>1:
+									# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
+									while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+										pickedWord = random.choice(wordList)
+
+							showContext.append(pickedWord)
+
+						tabText = ""
+						for word in showContext:
+							tabText += f"{word}\n"
+								
+						INDEX = tabText.find(selectedChar.string)
+						if not self.font.currentTab:
+							self.font.newTab(tabText)
+						else:
+							self.font.currentTab.text = tabText
+						self.font.currentTab.textCursor = INDEX
 					else:
-						self.font.currentTab.text = pickedWord
-					self.font.currentTab.textCursor = INDEX
+						Message("Add context in selected filter\n or reduce Show context treshold", title=f'No enought context found\n for [{c}] glyph', OKButton=None)
 
 
 			except:TypeError("Open a font or select a glyph")
@@ -327,6 +354,8 @@ class contextManager(GeneralPlugin):
 		tab1 = self.w.tabs[0]
 		tab2 = self.w.tabs[1]
 
+		
+
 		if self.font:
 			if self.font.selectedFontMaster:
 				selectedMasterID = self.font.selectedFontMaster.id
@@ -334,14 +363,6 @@ class contextManager(GeneralPlugin):
 			self.selectedChar = self.font.glyphs["A"].layers[0]
 			if self.font.selectedLayers:
 				self.selectedChar = self.font.selectedLayers[0]
-
-			# Hide Glyphs not present in current font
-			listFontGlyphs = []
-			for glyph in self.font.glyphs:
-				if "." in glyph.name:
-					listFontGlyphs.append(glyph.name.split('.')[0])
-				elif glyph.category and glyph.category != "Separator":
-					listFontGlyphs.append(glyph.name)
 
 			# Expand self.jsonFile if char in current font in not present in the list
 			for glyph in self.font.glyphs:
@@ -382,6 +403,8 @@ class contextManager(GeneralPlugin):
 			tab1.contextStringsEditor.set('\n'.join(self.jsonFile["Glyph"][glyphName]["ContextStrings"]))
 			tab2.listOfContextClass.set(self.jsonFile["ContextClass"])
 
+		self.w.tabs[0].slider.set(Glyphs.defaults["com.HugoJourdan.ContextManager.slider"])
+		self.w.tabs[0].sliderText.set(f'Show {Glyphs.defaults["com.HugoJourdan.ContextManager.slider"]} context')
 		self.updateGlyphClasses()
 
 	@objc.python_method
@@ -418,6 +441,7 @@ class contextManager(GeneralPlugin):
 				json.dump(self.jsonFile, outfile, indent=4, ensure_ascii=False)
 		self.w.tabs[0].contextClassList.set(self.jsonFile["Glyph"][self.selectedChar.parent.name]["ContextClass"])
 
+	@objc.python_method
 	def openWindow_(self, sender):
 		# Fix possible not Context Class linked
 				
@@ -427,15 +451,18 @@ class contextManager(GeneralPlugin):
 
 		if difference.days < 30:
 
+			
+
 			self.settings()
 			self.updateWindow()
 			self.w.open()
 
 			if not self.LoadPreferences():
 				print("Note: 'Context String Maker' could not load preferences. Will resort to defaults")
+
+			
 		else:
 			Message("Your FindContext trial period is over\nTo buy a licence, visit\nwww.lience.com", title='Context Manager', OKButton=None)
-
 
 	@objc.python_method
 	def toggleOptionCallback(self, sender):
@@ -658,6 +685,7 @@ class contextManager(GeneralPlugin):
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.uppercaseCheckBox", 0)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.startCheckBox", 0)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.includeCheckBox", 0)
+			Glyphs.registerDefault("com.HugoJourdan.ContextManager.slider", 0)
 
 
 			# load previously written prefs:
@@ -670,6 +698,7 @@ class contextManager(GeneralPlugin):
 			self.w.tabs[0].uppercaseCheckBox.set(Glyphs.defaults["com.HugoJourdan.ContextManager.uppercaseCheckBox"])
 			self.w.tabs[0].startCheckBox.set(Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"])
 			self.w.tabs[0].includeCheckBox.set(Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"])
+			self.w.tabs[0].slider.set(Glyphs.defaults["com.HugoJourdan.ContextManager.slider"])
 
 			return True
 		except:
@@ -822,7 +851,6 @@ class contextManager(GeneralPlugin):
 		w.open()
 
 		#@objc.python_method
-
 
 	@objc.python_method
 	def openDocumentationCallback( self, sender ):
