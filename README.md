@@ -2,7 +2,6 @@
 <p align="center">
   <img width="200" height="200" src="images/FindContext.png">
 </p>
-<br>
 
 # Context Manager
 >### Build your own contextual words/strings library of and access it dynamically.  
