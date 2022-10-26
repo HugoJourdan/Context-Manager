@@ -1,22 +1,22 @@
+<p align="center">
+  <img width="200" height="200" src="FindContext.png">
+</p>
+
 # Context Manager
->### Glyphs plugin to create your own library of contextual words/strings and access them easily.  
+>### Build your own contextual words/strings library of and access it dynamically.  
 
 
 <img src="contextManager-screenshot.jpg" width="700">
 
 <br>
-Context Manager allow user to manage contextual words/strings for each glyph and to create contextual group.  
+Context Manager is a Glyphs 3 Plugin which is intended to help and speed up your workflow when you are looking for a word/string to proof a specific glyph. It allow user to manage contextual words/strings for each glyph and to create contextual group.  
 
 
 <br>
 
-It comes with a database for Latin, Cyrilic and Grec letters. 20 words are already set for each letters.  
-These words have been choosed by an algorithm as the most convenient words to test each letter.  
-I will explain soon how this algorithm work.
+This plugin comes with a database for Latin, Cyrillic and Greek letters. This database was built using an algorithm that analysed dictionaries of different languages to establish a list of the most effective words to prove each letter.
 
-Context Manager add two items in your `Glyphs > Edit` menu:  
-- `Context Manager` : An interface to create/edit plugin settings. 
-- `Find Context…` : A script that randomly selects content from your context library and filter settings.
+⚠️ Do not download directly from here. Please install via GlyphsApp’s Plugin Manager ⚠️
 
 <br>
 
@@ -29,7 +29,28 @@ This is a 30-days trial version, with same features as paid version.
 
 <br><br>
 
+## How to use
+
+Context Manager add two items in your `Edit` menu:  
+- `Context Manager` : An interface to create/edit plugin settings. 
+- `Set Context…` : A script that randomly selects content from your context library and filter settings.
+
+I highly recommend to assign a shortcut to `Set Context…` to trigger it more easily.  
+For that go in `Glyphs > Preferences`, in `Shortcuts` section, search `Set Context…`, and record a shortcut here.
+
+<br><br>
+
+## Config File
+At first start, Context Manager will create a JSON file **Context Manager.json** store here :  
+`~/Library/Application Support/Glyphs 3/info/ContextManager.json`
+
+This file can be edited directly from the Context Manager UI or by being open with a text editor like Sublime Text or VSCode. To share your Context Manager settings, you just have to share this file and placed it here:  
+`~/Library/Application Support/Glyphs 3/info`
+
+<br><br>
+
 ## Context Manager UI
+<details><summary> Show documentation</summary>
 
 ![alt text](contextManagerUI.jpg "Context Mangaer Screenshot")
 
@@ -65,13 +86,13 @@ This is a 30-days trial version, with same features as paid version.
 
 ### 3. Glyph Words
 &emsp;&ensp;List all your saved words of your selected glyph.  
-&emsp;&ensp;You can add/remove/edit word.  (❗Be sure to separate your words by a line break❗)
+&emsp;&ensp;You can add/remove/edit word.  ( ⚠️ Be sure to separate your words by a line break ⚠️)
 
 ---
 
 ### 4. Glyph Strings
 &emsp;&ensp;List all your saved strings of your selected glyph.  
-&emsp;&ensp;You can add/remove/edit strings.  (❗Be sure to separate your strings by a line break❗)
+&emsp;&ensp;You can add/remove/edit strings.  (⚠️ Be sure to separate your strings by a line break ⚠️)
 
 ---
 
@@ -100,21 +121,20 @@ This is a 30-days trial version, with same features as paid version.
 
 ### 7. Class Strings
 &emsp;&ensp;Text entry control, where you can add strings that contain glyph from selected Context Class.
+</details>
 
-<br><br><br>
 
-## Config File
-At first start, Context Manager will create a JSON file `Context Manager.json` store here :  
-`~/Library/Application Support/Glyphs 3/info/ContextManager.json`
-
-This file can be edited directly from the Context Manager UI or by being open with a text editor like Sublime Text or VSCode.  
-To share your Context Manager settings, you just have to share this file and placed it here:  
-`~/Library/Application Support/Glyphs 3/info`
-
-<br><br><br>
+<br><br>
 
 ## Extra Features
-
+Some additionnal features are accesible via bottom right action button.
 - `Reset Context Manager settings` : Reset your actual settings.
 - `Import Context Manager settings` : Replace your actual settings by another setting file.
 - `Merge Context Manager settings with another file` : Import data from another setting file in your actual settings.
+
+<br><br>
+
+## How to buy paid version
+If you trial ended, you can buy a licence here: *(soon available)*
+
+
