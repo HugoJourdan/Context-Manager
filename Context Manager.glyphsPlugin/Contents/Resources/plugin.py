@@ -37,8 +37,11 @@ class contextManager(GeneralPlugin):
 
 		os.chdir(os.path.dirname(self.jsonPath))
 		if not os.path.exists(self.jsonPath):
-			with open('ContextManager.json', 'w') as f:
-				json.dump({"ContextClass":{},"Glyph":{}}, f)
+			# with open('ContextManager.json', 'w') as f:
+			# 	json.dump({"ContextClass":{},"Glyph":{}}, f)
+			import shutil
+			path = os.path.expanduser("~/Library/Application Support/Glyphs 3/Repositories/ContextManager/Context Manager.glyphsPlugin/Contents/Resources/ContextManager.json")
+			shutil.copy(path, os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
 
 		# Load File
 
@@ -46,7 +49,7 @@ class contextManager(GeneralPlugin):
 			self.jsonFile = json.load(json_file)
 
 
-		wW, wH = 660, 450
+		wW, wH = 760, 450
 		self.w = FloatingWindow((wW, wH), "Context Manager")
 		self.w.tabs = Tabs((10, 10, -10, -40), ["Context Glyph", "Context Class"], sizeStyle='small', callback=self.switchTabCallback)
 		tab1 = self.w.tabs[0]
@@ -123,15 +126,15 @@ class contextManager(GeneralPlugin):
 
 
 		tab2.contextClassGlyphsTitle = TextBox((220,14,-10,20), "Class Glyphs", sizeStyle="small")
-		tab2.contextClassGlyphs = List((220, 34, 80, -10), [], allowsMultipleSelection=True, drawFocusRing=False,rowHeight=20, enableDelete=True)
-		tab2.add_remove_contextGlyph = SegmentedButton((254, -36, 40, 20), [dict(title="+"), dict(title="-")], callback=self.add_remove_contextGlyphCallBack, sizeStyle="small", selectionStyle="momentary")
+		tab2.contextClassGlyphs = List((220, 34, 180, -10), [], allowsMultipleSelection=True, drawFocusRing=False,rowHeight=20, enableDelete=True)
+		tab2.add_remove_contextGlyph = SegmentedButton((354, -36, 40, 20), [dict(title="+"), dict(title="-")], callback=self.add_remove_contextGlyphCallBack, sizeStyle="small", selectionStyle="momentary")
 		tab2.add_remove_contextGlyph.getNSSegmentedButton().setToolTip_("Add selected Glyph in FontView")
 
 
 
 
-		tab2.contentContextClassTitle = TextBox((310,14,-10,20), "Class Strings", sizeStyle="small")
-		tab2.contentContextClass = TextEditor((310, 34, -10, -10), "", callback=self.updateClassStringsCallback)
+		tab2.contentContextClassTitle = TextBox((410,14,-10,20), "Class Strings", sizeStyle="small")
+		tab2.contentContextClass = TextEditor((410, 34, -10, -10), "", callback=self.updateClassStringsCallback)
 
 
 		#–––––––––––––––––––––––––––––––––––––––––––#
@@ -143,12 +146,16 @@ class contextManager(GeneralPlugin):
 			dict(title="Reset all datas", callback=self.resetCallback),
 			dict(title="Import Context File", callback=self.importCallback),
 			dict(title="Merge with another Context File", callback=self.mergeCallback),
+			"----",
+			dict(title="Open Context Manager Documentation", callback=self.openDocumentationCallback),
 		]
 		self.w.actionPopUpButton = ActionButton((wW-60, wH-28, -10, 18), actionPopUpButtonitems, sizeStyle='regular')
 
 		self.w.makeKey()
 		self.w.center()
 
+
+  
 	@objc.python_method
 	def start(self):
 		newMenuItem = NSMenuItem("Context Manager", self.openWindow_)
@@ -209,43 +216,44 @@ class contextManager(GeneralPlugin):
 			# Expand self.jsonFile if char in current font in not present in the list
 			for glyph in self.font.glyphs:
 				try:
-					if glyph.category and glyph.category != "Separator":
-						if "." in glyph.name:
-							glyphName = glyph.name.split('.')[0]
-							glyphString = self.font.glyphs[glyphName].string
+					if glyph.category and glyph.category != "Separator" or "Mark":
+						if "." in glyph.name and not "locl" in glyph.name.split('.')[1] :
+							glyphName = glyph.name.split('.')[0].name
 						else:
-							glyphString = glyph.string
-						if glyphString not in self.jsonFile["Glyph"].keys():
-							self.jsonFile["Glyph"][glyphString] = {"ContextClass":[], "ContextWords":[], "ContextStrings":[], }
+							glyphName = glyph.name
+						if glyphName not in self.jsonFile["Glyph"].keys():
+							self.jsonFile["Glyph"][glyphName] = {"ContextClass":[], "ContextWords":[], "ContextStrings":[], }
 				except:pass
-
 
 			if selectedMasterID:
 				LAYER = self.font.glyphs[self.selectedChar.parent.name].layers[selectedMasterID]
 				if hasattr(tab1.box, "glyphView") : delattr(tab1.box, "glyphView")
 				setattr(tab1.box, "glyphView", GlyphView((0, 0, -0, -20), layer=LAYER, backgroundColor=NSColor.clearColor()))
+
+			if len(self.selectedChar.parent.name) > 16:
+				tab1.box.drawGlyphName.set(self.selectedChar.parent.name[:16]+"...")
+			else:
 				tab1.box.drawGlyphName.set(self.selectedChar.parent.name)
 
 			glyphUnicode = self.selectedChar.parent.unicode
 			glyphUnicode = f"U{glyphUnicode}" if glyphUnicode else "No Unicode"
 			tab1.box.drawGlyphUnicode.set(glyphUnicode)
 
-			tab1.contextClassList.set(self.jsonFile["Glyph"][self.selectedChar.parent.string]["ContextClass"])
-			tab1.contextWordEditor.set('\n'.join(self.jsonFile["Glyph"][self.selectedChar.parent.string]["ContextWords"]))
-			tab1.contextStringsEditor.set('\n'.join(self.jsonFile["Glyph"][self.selectedChar.parent.string]["ContextStrings"]))
+			if ".locl" in self.selectedChar.parent.name:
+				glyphName = self.selectedChar.parent.name.split(".locl")[0]
+			elif "." in self.selectedChar.parent.name:
+				glyphName = self.selectedChar.parent.name.split(".locl")[0]
+			else:
+				glyphName = self.selectedChar.parent.name
+			
+
+			tab1.contextClassList.set(self.jsonFile["Glyph"][glyphName]["ContextClass"])
+			tab1.contextWordEditor.set('\n'.join(self.jsonFile["Glyph"][glyphName]["ContextWords"]))
+			tab1.contextStringsEditor.set('\n'.join(self.jsonFile["Glyph"][glyphName]["ContextStrings"]))
 			tab2.listOfContextClass.set(self.jsonFile["ContextClass"])
 
-		self.updateGlyphClass()
+		self.updateGlyphClasses()
 
-	@objc.python_method
-	def updateGlyphClass(self):
-		for CLASS in self.jsonFile["ContextClass"]:
-			for GLYPH in self.jsonFile["ContextClass"][CLASS]["Glyphs"]:
-				if GLYPH not in self.jsonFile["Glyph"]:
-					self.jsonFile["Glyph"][GLYPH] = {"ContextClass":[],"ContextWords":[], "ContextStrings":[]}
-				if CLASS not in self.jsonFile["Glyph"][GLYPH]["ContextClass"]:
-					self.jsonFile["Glyph"][GLYPH]["ContextClass"].append(CLASS)
-		self.w.tabs[0].contextClassList.set(self.jsonFile["Glyph"][self.selectedChar.parent.string]["ContextClass"])
 
 
 	@objc.python_method
@@ -263,8 +271,30 @@ class contextManager(GeneralPlugin):
 			self.w.tabs[1].listOfContextClass.setSelection([0])
 
 	@objc.python_method
-	def openWindow_(self, sender):
+	def updateGlyphClasses(self):
+		if self.font:
+			allClass = [CLASS for CLASS in self.jsonFile["ContextClass"].keys()]
+			for GLYPH in self.jsonFile["Glyph"]:
+				for CLASS in self.jsonFile["Glyph"][GLYPH]["ContextClass"]:
+					if GLYPH or font.glyphs[GLYPH].string not in self.jsonFile["ContextClass"][CLASS]:
+						self.jsonFile["Glyph"][GLYPH]["ContextClass"].remove(CLASS)
+						
+			for CLASS in self.jsonFile["ContextClass"].keys():	
+				for GLYPH in self.jsonFile["ContextClass"][CLASS]["Glyphs"]:
+					try:
+						glyphName = self.font.glyphs[GLYPH].name
+						if CLASS not in self.jsonFile["Glyph"][glyphName]["ContextClass"]:
+							self.jsonFile["Glyph"][glyphName]["ContextClass"].append(CLASS)
+					except:pass
+			with open(self.jsonPath, "w", encoding='utf8') as outfile:
+				json.dump(self.jsonFile, outfile, indent=4, ensure_ascii=False)
+		self.w.tabs[0].contextClassList.set(self.jsonFile["Glyph"][self.selectedChar.parent.name]["ContextClass"])
 
+	def openWindow_(self, sender):
+		# Fix possible not Context Class linked
+		
+		
+				
 		t1 = datetime.strptime(Glyphs.defaults["com.HugoJourdan.CM_T"], "%d/%m/%Y")
 		t2 = datetime.strptime(datetime.now().strftime("%d/%m/%Y"), "%d/%m/%Y")
 		difference = t2 - t1
@@ -300,17 +330,16 @@ class contextManager(GeneralPlugin):
 		tabSelected = sender.get()
 		try:
 			if tabSelected == 1 :
-				if self.jsonFile["Glyph"][self.selectedChar.parent.string]["ContextClass"]:
-					if "." in self.selectedChar.parent.name:
-						findGlyph = self.selectedChar.parent.name.split(".")[0].string
+				if self.jsonFile["Glyph"][self.selectedChar.parent.name]["ContextClass"]:
+					if "." in self.selectedChar.parent.name :
+						findGlyph = self.selectedChar.parent.name.split(".")[0].name
 					else:
-						findGlyph = self.selectedChar.parent.string
+						findGlyph = self.selectedChar.parent.name
 					className = self.jsonFile["Glyph"][findGlyph]["ContextClass"][0]
 					i = list(self.jsonFile["ContextClass"]).index(className)
 					self.w.tabs[1].listOfContextClass.setSelection([i])
 			elif tabSelected == 0 :
-				print("tab1")
-				self.updateGlyphClass()
+				self.updateGlyphClasses()
 		except:pass
 
 	# Update "Class Strings" in [Context Class] tab.
@@ -428,23 +457,27 @@ class contextManager(GeneralPlugin):
 		# If (-) button is pressed
 		if value == 1:
 			if self.w.tabs[1].contextClassGlyphs.getSelection():
-
+				print(self.w.tabs[1].contextClassGlyphs.getSelection())
 				i = self.w.tabs[1].listOfContextClass.getSelection()[0]
 				selectedClass = list(self.jsonFile["ContextClass"].keys())[i]
 
-				i = self.w.tabs[1].contextClassGlyphs.getSelection()[0]
-				self.w.tabs[1].contextClassGlyphs.setSelection([i-1])
+				
 
-				# Remove Deleted Item
-				key = list(self.jsonFile["ContextClass"][selectedClass]["Glyphs"])[i]
-				self.jsonFile["ContextClass"][selectedClass]["Glyphs"].remove(key)
+				# Remove Selected Item
+				removeGlyphs = []
+				for item in self.w.tabs[1].contextClassGlyphs.getSelection():
+					key = list(self.jsonFile["ContextClass"][selectedClass]["Glyphs"])[item]
+					removeGlyphs.append(key)
+				for glyph in removeGlyphs:
+					self.jsonFile["ContextClass"][selectedClass]["Glyphs"].remove(glyph)
 				self.w.tabs[1].contextClassGlyphs.set(list(self.jsonFile["ContextClass"][selectedClass]["Glyphs"]))
 
 
 				with open(self.jsonPath, "w", encoding='utf8') as outfile:
 						json.dump(self.jsonFile, outfile, indent=4, ensure_ascii=False)
 
-				self.updateGlyphClass()
+				self.w.tabs[1].contextClassGlyphs.setSelection([])
+				self.updateGlyphClasses()
 
 		# If (+) button is pressed
 		elif value == 0:
@@ -455,7 +488,13 @@ class contextManager(GeneralPlugin):
 				selectedClass = list(self.jsonFile["ContextClass"].keys())[i]
 
 				for glyph in self.font.selection:
-					addGlyph = glyph.string
+					print(glyph.name.split(".locl")[0])
+					if glyph.string:
+						addGlyph = glyph.string
+					if self.font.glyphs[glyph.name.split(".locl")[0]]:
+						addGlyph = self.font.glyphs[glyph.name.split(".locl")[0]].string
+					else:
+						addGlyph = glyph.name
 					if addGlyph not in self.jsonFile["ContextClass"][selectedClass]["Glyphs"]:
 						self.jsonFile["ContextClass"][selectedClass]["Glyphs"].append(addGlyph)
 
@@ -469,7 +508,7 @@ class contextManager(GeneralPlugin):
 				with open(self.jsonPath, "w", encoding='utf8') as outfile:
 					json.dump(self.jsonFile, outfile, indent=4, ensure_ascii=False)
 
-				self.updateGlyphClass()
+				self.updateGlyphClasses()
 
 			else:
 				Message("No Glyph selected.\nSelect Glyphs in Font View,\n then press [+] button")
@@ -518,7 +557,7 @@ class contextManager(GeneralPlugin):
 	@objc.python_method
 	def updateGlyphWordsCallback(self, sender):
 
-		input = self.selectedChar.parent.string
+		input = self.selectedChar.parent.name
 		editText = sender.get()
 		editTextList = [x for x in editText.split("\n") if x]
 		editTextList = list(dict.fromkeys(editTextList))
@@ -533,7 +572,8 @@ class contextManager(GeneralPlugin):
 	# Update "Glyph Strings" in [Context Glyph] tab.
 	@objc.python_method
 	def updateGlyphStringsCallback(self, sender):
-		input = self.selectedChar.parent.string
+
+		input = self.selectedChar.parent.name
 		editText = sender.get()
 		editTextList = [x for x in editText.split("\n") if x]
 		self.jsonFile["Glyph"][input]["ContextStrings"] = editTextList
@@ -553,7 +593,6 @@ class contextManager(GeneralPlugin):
 		for CLASS in mergeFile["ContextClass"]:
 			if CLASS not in self.jsonFile["ContextClass"]:
 				self.jsonFile["ContextClass"][CLASS] = mergeFile["ContextClass"][CLASS]
-				print(mergeFile["ContextClass"][CLASS])
 			for word in mergeFile["ContextClass"][CLASS]["Glyphs"]:
 				if word not in self.jsonFile["ContextClass"][CLASS]["Glyphs"]:
 					self.jsonFile["ContextClass"][CLASS]["Glyphs "].append(word)
@@ -583,15 +622,13 @@ class contextManager(GeneralPlugin):
 	@objc.python_method
 	def importCallback(self, sender):
 
-
-		def importContextDataCallback(self):
+		def importContextDataCallback(sender):
 			mergeFile = GetOpenFile(message="Select a .json file to import data",
 								allowsMultipleSelection=False, filetypes=None, path=None)
-			jsonPath = os.path.expanduser("~/Library/Application Support/Glyphs 3/info/ContextManager.json")
 
-			with open(mergeFile) as json_file:
+			with open(mergeFile, encoding='utf8') as json_file:
 				mergeFile = json.load(json_file)
-			with open(jsonPath) as json_file:
+			with open(self.jsonPath, encoding='utf8') as json_file:
 				jsonFile = json.load(json_file)
 
 			if w.contextClassCheckBox.get() == True:
@@ -615,23 +652,30 @@ class contextManager(GeneralPlugin):
 						jsonFile["ContextClass"][CLASS]["Context"] = mergeFile["ContextClass"][CLASS]["Context"]
 
 			if w.contextWordsCheckBox.get() == True:
-				for GLYPH in mergeFile["Glyph"]:
-					if not GLYPH in jsonFile["Glyph"]:
-						jsonFile["Glyph"][GLYPH] = {"ContextClass":[], "ContextWords":[], "ContextStrings":[]}
-					jsonFile["Glyph"][GLYPH]["ContextWords"] = mergeFile["Glyph"][GLYPH]["ContextWords"]
+				for GLYPH in mergeFile["Glyph"].keys():
+					glyphName = Glyphs.font.glyphs[GLYPH].name
+
+					if not glyphName in jsonFile["Glyph"]:
+						jsonFile["Glyph"][glyphName] = {"ContextClass":[], "ContextWords":[], "ContextStrings":[]}
+					for word in mergeFile["Glyph"][GLYPH]["ContextWords"]:
+						if word not in jsonFile["Glyph"][glyphName]["ContextWords"]:
+							self.jsonFile["Glyph"][glyphName]["ContextWords"].append(word)
 
 			if w.contextStringsCheckBox.get() == True:
 				for GLYPH in mergeFile["Glyph"]:
-					if not GLYPH in jsonFile["Glyph"]:
-						jsonFile["Glyph"][GLYPH] = {"ContextClass":[], "ContextWords":[], "ContextStrings":[]}
-					jsonFile["Glyph"][GLYPH]["ContextStrings"] = mergeFile["Glyph"][GLYPH]["ContextStrings"]
-				print("contextStringsCheckBox")
+					
+					glyphName = self.font.glyphs[GLYPH].name
+					if not glyphName in jsonFile["Glyph"]:
+						jsonFile["Glyph"][glyphName] = {"ContextClass":[], "ContextWords":[], "ContextStrings":[]}
+					
+					jsonFile["Glyph"][glyphName]["ContextStrings"] = mergeFile["Glyph"][GLYPH]["ContextStrings"]
 
-			os.chdir(os.path.dirname(jsonPath))
-			with open('ContextManager.json', 'w',  encoding='utf8') as f:
-				json.dump(jsonFile, f, indent=4, ensure_ascii=False)
+			os.chdir(os.path.dirname(self.jsonPath))
+			with open(self.jsonPath, "w", encoding='utf8') as outfile:
+				json.dump(self.jsonFile, outfile, indent=4, ensure_ascii=False)
 
-
+			contextManager.updateWindow(self)
+		
 
 		wW, wH, linePos = 160, 180, 10
 		w = FloatingWindow((wW, wH), "Import Context Data")
@@ -651,7 +695,6 @@ class contextManager(GeneralPlugin):
 		w.runButton = Button((6,-26,-6,16), "Load file", callback=importContextDataCallback)
 
 
-		print(w.contextClassContextCheckBox.get())
 
 		w.center()
 		w.open()
@@ -659,7 +702,11 @@ class contextManager(GeneralPlugin):
 		#@objc.python_method
 
 
-
+	@objc.python_method
+	def openDocumentationCallback( self, sender ):
+		URL = "https://github.com/HugoJourdan/Context-Manager"
+		import webbrowser
+		webbrowser.open(URL)
 
 
 	@objc.python_method
