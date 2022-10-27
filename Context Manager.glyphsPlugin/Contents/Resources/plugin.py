@@ -135,8 +135,6 @@ class contextManager(GeneralPlugin):
 		tab2.add_remove_contextGlyph.getNSSegmentedButton().setToolTip_("Add selected Glyph in FontView")
 
 
-
-
 		tab2.contentContextClassTitle = TextBox((410,14,-10,20), "Class Strings", sizeStyle="small")
 		tab2.contentContextClass = TextEditor((410, 34, -10, -10), "", callback=self.updateClassStringsCallback)
 
@@ -319,32 +317,34 @@ class contextManager(GeneralPlugin):
 					showContext = []
 					pickedWord = random.choice(wordList)
 
-					if len(wordList) > nbWords:
+					if self.font.currentTab and len(wordList)>1 and nbWords == 1:
+						currenTabText = self.font.currentTab.text
+						# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
+						while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+							pickedWord = random.choice(wordList)
+
+						showContext.append(pickedWord)
+
+					elif len(wordList) > nbWords:
 						for i in range (nbWords):
 							while pickedWord in showContext:
 								pickedWord = random.choice(wordList)
-							
-							if self.font.currentTab:
-								currenTabText = self.font.currentTab.text
-								if len(wordList)>1:
-									# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
-									while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
-										pickedWord = random.choice(wordList)
-
 							showContext.append(pickedWord)
+							
+					
 
-						tabText = ""
-						for word in showContext:
-							tabText += f"{word}\n"
-								
-						INDEX = tabText.find(selectedChar.string)
-						if not self.font.currentTab:
-							self.font.newTab(tabText)
-						else:
-							self.font.currentTab.text = tabText
-						self.font.currentTab.textCursor = INDEX
+					tabText = ""
+					for word in showContext:
+						tabText += f"{word}\n"
+							
+					INDEX = tabText.find(selectedChar.string)
+					if not self.font.currentTab:
+						self.font.newTab(tabText)
 					else:
-						Message("Add context in selected filter\n or reduce Show context treshold", title=f'No enought context found\n for [{c}] glyph', OKButton=None)
+						self.font.currentTab.text = tabText
+					self.font.currentTab.textCursor = INDEX
+				else:
+					Message("Add context in selected filter\n or reduce Show context treshold", title=f'No enought context found\n for [{c}] glyph', OKButton=None)
 
 
 			except:TypeError("Open a font or select a glyph")
@@ -355,8 +355,6 @@ class contextManager(GeneralPlugin):
 	def updateWindow(self):
 		tab1 = self.w.tabs[0]
 		tab2 = self.w.tabs[1]
-
-		
 
 		if self.font:
 			if self.font.selectedFontMaster:
@@ -452,17 +450,15 @@ class contextManager(GeneralPlugin):
 		difference = t2 - t1
 
 		if difference.days < 30:
-
-			
-
-			self.settings()
-			self.updateWindow()
-			self.w.open()
+			try:
+				self.settings()
+				self.updateWindow()
+				self.w.open()
+			except:pass
 
 			if not self.LoadPreferences():
 				print("Note: 'Context String Maker' could not load preferences. Will resort to defaults")
 
-			
 		else:
 			Message("Your FindContext trial period is over\nTo buy a licence, visit\nwww.lience.com", title='Context Manager', OKButton=None)
 
