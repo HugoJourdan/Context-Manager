@@ -27,21 +27,21 @@ from vanilla import *
 class contextManager(GeneralPlugin):
 
 	@objc.python_method
-	def settings(self):
+	def settings(self):	
+
 		self.name = Glyphs.localize({'en': 'Context Manager'})
 		self.font = Glyphs.font
 		self.jsonPath = os.path.expanduser("~/Library/Application Support/Glyphs 3/info/ContextManager.json")
 
-		if not os.path.exists(os.path.expanduser("~/Library/Application Support/Glyphs 3/info")):
-			os.makedirs(os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
-
 		os.chdir(os.path.dirname(self.jsonPath))
 		if not os.path.exists(self.jsonPath):
-			# with open('ContextManager.json', 'w') as f:
-			# 	json.dump({"ContextClass":{},"Glyph":{}}, f)
-			import shutil
-			path = os.path.expanduser("~/Library/Application Support/Glyphs 3/Repositories/ContextManager/Context Manager.glyphsPlugin/Contents/Resources/ContextManager.json")
-			shutil.copy(path, os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
+			try:
+				import shutil
+				path = os.path.expanduser("~/Library/Application Support/Glyphs 3/Repositories/ContextManager/Context Manager.glyphsPlugin/Contents/Resources/ContextManager.json")
+				shutil.copy(path, os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
+			except:
+				with open('ContextManager.json', 'w') as f:
+					json.dump({"ContextClass":{},"Glyph":{}}, f)
 
 		# Load File
 
@@ -176,6 +176,13 @@ class contextManager(GeneralPlugin):
 
 		if not Glyphs.defaults["com.HugoJourdan.CM_T"]:
 			Glyphs.defaults["com.HugoJourdan.CM_T"] = current_time = datetime.now().strftime("%d/%m/%Y")
+
+		if not os.path.exists(os.path.expanduser("~/Library/Application Support/Glyphs 3/info")):
+			os.makedirs(os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
+
+		
+
+		
 
 	@objc.python_method
 	def __del__(self):
