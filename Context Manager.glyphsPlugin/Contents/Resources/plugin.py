@@ -174,15 +174,10 @@ class contextManager(GeneralPlugin):
 
 		Glyphs.addCallback(self.update, UPDATEINTERFACE)
 
+		self.LoadPreferences()
+
 		if not Glyphs.defaults["com.HugoJourdan.CM_T"]:
 			Glyphs.defaults["com.HugoJourdan.CM_T"] = current_time = datetime.now().strftime("%d/%m/%Y")
-
-		if not os.path.exists(os.path.expanduser("~/Library/Application Support/Glyphs 3/info")):
-			os.makedirs(os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
-
-		
-
-		
 
 	@objc.python_method
 	def __del__(self):
@@ -682,9 +677,8 @@ class contextManager(GeneralPlugin):
 	def LoadPreferences(self):
 		try:
 			# register defaults:
-
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.contextClassCheckBox", 0)
-			Glyphs.registerDefault("com.HugoJourdan.ContextManager.contextWordsCheckBox", 0)
+			Glyphs.registerDefault("com.HugoJourdan.ContextManager.contextWordsCheckBox", 1)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.contextStringCheckBox", 0)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.smartContextCheckBox", 0)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.spacingContextCheckBox", 0)
@@ -692,7 +686,7 @@ class contextManager(GeneralPlugin):
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.uppercaseCheckBox", 0)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.startCheckBox", 0)
 			Glyphs.registerDefault("com.HugoJourdan.ContextManager.includeCheckBox", 0)
-			Glyphs.registerDefault("com.HugoJourdan.ContextManager.slider", 0)
+			Glyphs.registerDefault("com.HugoJourdan.ContextManager.slider", 1)
 
 
 			# load previously written prefs:
