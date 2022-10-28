@@ -315,6 +315,13 @@ class contextManager(GeneralPlugin):
 
 					nbWords = Glyphs.defaults["com.HugoJourdan.ContextManager.slider"]
 					showContext = []
+
+					# Fix if "/" in context
+					for word in wordList:
+						if "/" in word:
+							i = wordList.index(word)
+							wordList[i] = word.replace("/", "//") 
+
 					pickedWord = random.choice(wordList)
 
 					if self.font.currentTab and len(wordList)>1 and nbWords == 1:
