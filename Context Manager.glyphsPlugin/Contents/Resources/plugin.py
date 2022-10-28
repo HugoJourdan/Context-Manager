@@ -33,6 +33,9 @@ class contextManager(GeneralPlugin):
 		self.font = Glyphs.font
 		self.jsonPath = os.path.expanduser("~/Library/Application Support/Glyphs 3/info/ContextManager.json")
 
+		if not os.path.exists(os.path.expanduser("~/Library/Application Support/Glyphs 3/info")):
+			os.makedirs(os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
+
 		os.chdir(os.path.dirname(self.jsonPath))
 		if not os.path.exists(self.jsonPath):
 			try:
