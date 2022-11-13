@@ -126,20 +126,20 @@ class contextManager(GeneralPlugin):
 
 		self.classList = list(self.jsonFile["ContextClass"].keys())
 
-		tab2.listOfContextClassTitle = TextBox((10,14,-10,20), "Context Classes", sizeStyle="small")
+		tab2.listOfContextClassTitle = TextBox((10,14,wW-10,20), "Context Classes", sizeStyle="small")
 		tab2.filterClass = EditText((110,10,100,20),sizeStyle="small", placeholder="🔎 Search Glyph", callback=self.filterClassCallback)
-		tab2.listOfContextClass = List((10, 34, 200, -10), self.classList, selectionCallback=self.updateClassGlyphsCallback, doubleClickCallback=self.renameItem_contextClassCallBack, allowsMultipleSelection=False, drawFocusRing=False,rowHeight=20)
-		tab2.add_remove_contextClass = SegmentedButton((166, -36, 40, 20), [dict(title="+"), dict(title="-")], callback=self.add_remove_contextClassCallBack, sizeStyle="small", selectionStyle="momentary")
+		tab2.listOfContextClass = List((10, 34, 200, wH-120), self.classList, selectionCallback=self.updateClassGlyphsCallback, doubleClickCallback=self.renameItem_contextClassCallBack, allowsMultipleSelection=False, drawFocusRing=False,rowHeight=20)
+		tab2.add_remove_contextClass = SegmentedButton((166, wH-116, 40, 20), [dict(title="+"), dict(title="-")], callback=self.add_remove_contextClassCallBack, sizeStyle="small", selectionStyle="momentary")
 
 
-		tab2.contextClassGlyphsTitle = TextBox((220,14,-10,20), "Class Glyphs", sizeStyle="small")
-		tab2.contextClassGlyphs = List((220, 34, 180, -10), [], allowsMultipleSelection=True, drawFocusRing=False,rowHeight=20, enableDelete=True)
-		tab2.add_remove_contextGlyph = SegmentedButton((354, -36, 40, 20), [dict(title="+"), dict(title="-")], callback=self.add_remove_contextGlyphCallBack, sizeStyle="small", selectionStyle="momentary")
+		tab2.contextClassGlyphsTitle = TextBox((220,14,wW-20,20), "Class Glyphs", sizeStyle="small")
+		tab2.contextClassGlyphs = List((220, 34, 180, wH-120), [], allowsMultipleSelection=True, drawFocusRing=False,rowHeight=20, enableDelete=True)
+		tab2.add_remove_contextGlyph = SegmentedButton((354, wH-116, 40, 20), [dict(title="+"), dict(title="-")], callback=self.add_remove_contextGlyphCallBack, sizeStyle="small", selectionStyle="momentary")
 		tab2.add_remove_contextGlyph.getNSSegmentedButton().setToolTip_("Add selected Glyph in FontView")
 
 
-		tab2.contentContextClassTitle = TextBox((410,14,-10,20), "Class Strings", sizeStyle="small")
-		tab2.contentContextClass = TextEditor((410, 34, -10, -10), "", callback=self.updateClassStringsCallback)
+		tab2.contentContextClassTitle = TextBox((410,14,wW-120,20), "Class Strings", sizeStyle="small")
+		tab2.contentContextClass = TextEditor((410, 34, 316, wH-120), "", callback=self.updateClassStringsCallback)
 
 
 		#–––––––––––––––––––––––––––––––––––––––––––#
