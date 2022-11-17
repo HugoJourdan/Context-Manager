@@ -12,7 +12,6 @@
 <br>
 Context Manager is a Glyphs 3 Plugin which is intended to help and speed up your workflow when you are looking for a word/string to proof a specific glyph. It allow user to manage contextual words/strings for each glyph and to create contextual group.  
 
-
 <br>
 
 This plugin comes with a database for Latin, Cyrillic and Greek letters. This database was built using an algorithm that analysed dictionaries of different languages to establish a list of the most effective words to prove each letter.
@@ -20,6 +19,8 @@ This plugin comes with a database for Latin, Cyrillic and Greek letters. This da
 ⚠️ Do not download directly from here. Please install via GlyphsApp’s Plugin Manager ⚠️
 
 <br>
+
+https://user-images.githubusercontent.com/76793951/202452962-b2d79a86-d0c5-45c4-bb37-ec453125193d.mp4
 
 ___
 <br>
