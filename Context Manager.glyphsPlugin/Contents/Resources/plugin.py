@@ -177,8 +177,6 @@ class contextManager(GeneralPlugin):
 
 		self.LoadPreferences()
 
-		if not Glyphs.defaults["com.HugoJourdan.CM_T"]:
-			Glyphs.defaults["com.HugoJourdan.CM_T"] = current_time = datetime.now().strftime("%d/%m/%Y")
 
 	@objc.python_method
 	def __del__(self):
@@ -212,154 +210,150 @@ class contextManager(GeneralPlugin):
 
 		self.font = Glyphs.font
 
-		t1 = datetime.strptime(Glyphs.defaults["com.HugoJourdan.CM_T"], "%d/%m/%Y")
-		t2 = datetime.strptime(datetime.now().strftime("%d/%m/%Y"), "%d/%m/%Y")
-		difference = t2 - t1
 
-		if difference.days < 30:
-			with open(self.jsonPath) as json_file:
-				contextDic = json.load(json_file)
+		
+		with open(self.jsonPath, encoding="utf-8") as json_file:
+			contextDic = json.load(json_file)
 
-			# Use current selected Glyph EditView or FontView
-			try:
-				if self.font.selectedLayers:
-					selectedChar = self.font.selectedLayers[0].parent
+		# Use current selected Glyph EditView or FontView
+		try:
+			if self.font.selectedLayers:
+				selectedChar = self.font.selectedLayers[0].parent
 
-				c = selectedChar.name
+			c = selectedChar.name
 
-				wordList = []
-				if c in contextDic["Glyph"]:
+			wordList = []
+			if c in contextDic["Glyph"]:
 
-					# If "Class" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.contextClassCheckBox"] == True:
-						for CLASS in contextDic["ContextClass"]:
-							if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
-								for item in contextDic["ContextClass"][CLASS]["Context"]:
-									wordList.append(item)
-
-								#wordList.append(glyphsString)
-
-					# If "Context" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.contextWordsCheckBox"] == True:
-						if c in contextDic["Glyph"]:
-							for item in contextDic["Glyph"][c]["ContextWords"]:
+				# If "Class" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.contextClassCheckBox"] == True:
+					for CLASS in contextDic["ContextClass"]:
+						if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
+							for item in contextDic["ContextClass"][CLASS]["Context"]:
 								wordList.append(item)
 
-					# If "String" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.contextStringCheckBox"] == True:
-						if c in contextDic["Glyph"]:
-							for item in contextDic["Glyph"][c]["ContextStrings"]:
-								wordList.append(item)
+							#wordList.append(glyphsString)
 
-					# If "Smart" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.smartContextCheckBox"] == True:
-						addString = []
-						classGlyphs = {}
+				# If "Context" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.contextWordsCheckBox"] == True:
+					if c in contextDic["Glyph"]:
+						for item in contextDic["Glyph"][c]["ContextWords"]:
+							wordList.append(item)
 
-						for CLASS in contextDic["ContextClass"]:
-							if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
-								# addString = f"{c} "
-								# for glyph in [glyph for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]] :
-								# 	if glyph != c:
-								# 		addString += f"{glyph}{c}{glyph} "
-								# wordList.append(addString)
-								classGlyphs = ""
-								for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]:
-										classGlyphs += glyph
-								wordList.append(classGlyphs)
+				# If "String" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.contextStringCheckBox"] == True:
+					if c in contextDic["Glyph"]:
+						for item in contextDic["Glyph"][c]["ContextStrings"]:
+							wordList.append(item)
 
-					# If "Spacing" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.spacingContextCheckBox"] == True:
-						wordList.append(f"HH{c}HH{c}OO{c}OO{c}nn{c}nn{c}oo{c}oo")
+				# If "Smart" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.smartContextCheckBox"] == True:
+					addString = []
+					classGlyphs = {}
 
-					# If "Uppercase" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.uppercaseCheckBox"] == True:
-						wordListCopy = []
-						for word in wordList:
-							wordCopy = ""
-							for char in word:
-								if char != selectedChar.string:
-									wordCopy += char.upper()
-								else:
-									wordCopy += char
-							wordListCopy.append(wordCopy)
-						wordList = wordListCopy
+					for CLASS in contextDic["ContextClass"]:
+						if c in contextDic["ContextClass"][CLASS]["Glyphs"]:
+							# addString = f"{c} "
+							# for glyph in [glyph for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]] :
+							# 	if glyph != c:
+							# 		addString += f"{glyph}{c}{glyph} "
+							# wordList.append(addString)
+							classGlyphs = ""
+							for glyph in contextDic["ContextClass"][CLASS]["Glyphs"]:
+									classGlyphs += glyph
+							wordList.append(classGlyphs)
 
-					# If "Lowercase" filter is checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.lowercaseCheckBox"] == True:
-						wordListCopy = []
-						for word in wordList:
-							wordCopy = ""
-							for char in word:
-								if char != selectedChar.string:
-									wordCopy += char.lower()
-								else:
-									wordCopy += char
-							wordListCopy.append(wordCopy)
-						wordList = wordListCopy
+				# If "Spacing" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.spacingContextCheckBox"] == True:
+					wordList.append(f"HH{c}HH{c}OO{c}OO{c}nn{c}nn{c}oo{c}oo")
 
-					# If "Start" or "Include" filter are checked
-					if Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"] == True and Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"] == True:
-						pass
-					elif Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"] == True:
-						tempList = wordList.copy()
-						for word in tempList:
-							if word[0] != selectedChar.string:
-								wordList.remove(word)
-					elif Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"] == True:
-						tempList = wordList.copy()
-						for word in tempList:
-							if word[0] == selectedChar.string:
-								wordList.remove(word)
-
-					if not wordList:
-						Message(f"Check if you have set any context\n or selected filters.", title=f"No Context found\n for [{c}] glyph", OKButton=None)
-						pass
-
-					nbWords = Glyphs.defaults["com.HugoJourdan.ContextManager.slider"]
-					showContext = []
-
-					# Fix if "/" in context
+				# If "Uppercase" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.uppercaseCheckBox"] == True:
+					wordListCopy = []
 					for word in wordList:
-						if "/" in word:
-							i = wordList.index(word)
-							wordList[i] = word.replace("/", "//") 
+						wordCopy = ""
+						for char in word:
+							if char != selectedChar.string:
+								wordCopy += char.upper()
+							else:
+								wordCopy += char
+						wordListCopy.append(wordCopy)
+					wordList = wordListCopy
 
-					pickedWord = random.choice(wordList)
+				# If "Lowercase" filter is checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.lowercaseCheckBox"] == True:
+					wordListCopy = []
+					for word in wordList:
+						wordCopy = ""
+						for char in word:
+							if char != selectedChar.string:
+								wordCopy += char.lower()
+							else:
+								wordCopy += char
+						wordListCopy.append(wordCopy)
+					wordList = wordListCopy
 
-					if self.font.currentTab and len(wordList)>1 and nbWords == 1:
-						currenTabText = self.font.currentTab.text
-						# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
-						while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+				# If "Start" or "Include" filter are checked
+				if Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"] == True and Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"] == True:
+					pass
+				elif Glyphs.defaults["com.HugoJourdan.ContextManager.startCheckBox"] == True:
+					tempList = wordList.copy()
+					for word in tempList:
+						if word[0] != selectedChar.string:
+							wordList.remove(word)
+				elif Glyphs.defaults["com.HugoJourdan.ContextManager.includeCheckBox"] == True:
+					tempList = wordList.copy()
+					for word in tempList:
+						if word[0] == selectedChar.string:
+							wordList.remove(word)
+
+				if not wordList:
+					Message(f"Check if you have set any context\n or selected filters.", title=f"No Context found\n for [{c}] glyph", OKButton=None)
+					pass
+
+				nbWords = Glyphs.defaults["com.HugoJourdan.ContextManager.slider"]
+				showContext = []
+
+				# Fix if "/" in context
+				for word in wordList:
+					if "/" in word:
+						i = wordList.index(word)
+						wordList[i] = word.replace("/", "//") 
+
+				pickedWord = random.choice(wordList)
+
+				if self.font.currentTab and len(wordList)>1 and nbWords == 1:
+					currenTabText = self.font.currentTab.text
+					# Pick again if word already in current tab /or/ if selected word contain char not in font /or/ selected char not in selected word
+					while pickedWord == currenTabText or all(char in [glyph.string for glyph in self.font.glyphs] for char in [*pickedWord]) == False or selectedChar.string not in pickedWord :
+						pickedWord = random.choice(wordList)
+
+					showContext.append(pickedWord)
+
+				elif len(wordList) > nbWords:
+					for i in range (nbWords):
+						while pickedWord in showContext:
 							pickedWord = random.choice(wordList)
-
 						showContext.append(pickedWord)
+						
+				
 
-					elif len(wordList) > nbWords:
-						for i in range (nbWords):
-							while pickedWord in showContext:
-								pickedWord = random.choice(wordList)
-							showContext.append(pickedWord)
-							
-					
-
-					tabText = ""
-					for word in showContext:
-						tabText += f"{word}\n"
-							
-					INDEX = tabText.find(selectedChar.string)
-					if not self.font.currentTab:
-						self.font.newTab(tabText)
-					else:
-						self.font.currentTab.text = tabText
-					self.font.currentTab.textCursor = INDEX
+				tabText = ""
+				for word in showContext:
+					tabText += f"{word}\n"
+						
+				INDEX = tabText.find(selectedChar.string)
+				if not self.font.currentTab:
+					self.font.newTab(tabText)
 				else:
-					Message("Add context in selected filter\n or reduce Show context treshold", title=f'No enought context found\n for [{c}] glyph', OKButton=None)
+					self.font.currentTab.text = tabText
+				self.font.currentTab.textCursor = INDEX
+			else:
+				Message("Add context in selected filter\n or reduce Show context treshold", title=f'No enought context found\n for [{c}] glyph', OKButton=None)
 
 
-			except:TypeError("Open a font or select a glyph")
-		else:
-			Message("Your FindContext trial period is over\nTo buy a licence, visit\nwww.lience.com", title='Context Manager', OKButton=None)
+		except:TypeError("Open a font or select a glyph")
+
 
 	@objc.python_method
 	def updateWindow(self):
@@ -455,22 +449,12 @@ class contextManager(GeneralPlugin):
 	def openWindow_(self, sender):
 		# Fix possible not Context Class linked
 				
-		t1 = datetime.strptime(Glyphs.defaults["com.HugoJourdan.CM_T"], "%d/%m/%Y")
-		t2 = datetime.strptime(datetime.now().strftime("%d/%m/%Y"), "%d/%m/%Y")
-		difference = t2 - t1
+		self.settings()
+		self.updateWindow()
+		self.w.open()
 
-		if difference.days < 30:
-			try:
-				self.settings()
-				self.updateWindow()
-				self.w.open()
-			except:pass
-
-			if not self.LoadPreferences():
-				print("Note: 'Context String Maker' could not load preferences. Will resort to defaults")
-
-		else:
-			Message("Your FindContext trial period is over\nTo buy a licence, visit\nwww.lience.com", title='Context Manager', OKButton=None)
+		if not self.LoadPreferences():
+			print("Note: 'Context String Maker' could not load preferences. Will resort to defaults")
 
 	@objc.python_method
 	def toggleOptionCallback(self, sender):

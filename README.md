@@ -26,7 +26,6 @@ ___
 
 ## Installation
 From Glyphs App go to `Window > Plugin Manager`, search `Context Manager`, install it and restart Glyphs.  
-This is a 30-days trial version, with same features as paid version.
 
 <br><br>
 
@@ -142,10 +141,4 @@ Some additionnal features are accesible via bottom right action button.
 - `Reset Context Manager settings` : Reset your actual settings.
 - `Import Context Manager settings` : Replace your actual settings by another setting file.
 - `Merge Context Manager settings with another file` : Import data from another setting file in your actual settings.
-
-<br><br>
-
-## How to buy paid version
-If you trial ended, you can buy a licence here: *(soon available)*
-
 
