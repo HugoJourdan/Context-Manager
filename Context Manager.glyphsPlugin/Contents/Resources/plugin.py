@@ -40,7 +40,7 @@ class contextManager(GeneralPlugin):
 		if not os.path.exists(self.jsonPath):
 			try:
 				import shutil
-				path = os.path.expanduser("~/Library/Application Support/Glyphs 3/Repositories/ContextManager/Context Manager.glyphsPlugin/Contents/Resources/ContextManager.json")
+				path = os.path.expanduser("~/Library/Application Support/Glyphs 3/Repositories/Context-Manager/Context Manager.glyphsPlugin/Contents/Resources/ContextManager.json")
 				shutil.copy(path, os.path.expanduser("~/Library/Application Support/Glyphs 3/info"))
 			except:
 				with open('ContextManager.json', 'w') as f:
