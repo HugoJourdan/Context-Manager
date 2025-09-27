@@ -361,9 +361,13 @@ class contextManager(GeneralPlugin):
 			if self.font.selectedFontMaster:
 				selectedMasterID = self.font.selectedFontMaster.id
 
-			self.selectedChar = self.font.glyphs["A"].layers[0]
 			if self.font.selectedLayers:
 				self.selectedChar = self.font.selectedLayers[0]
+			else:
+				try:
+					self.selectedChar = self.font.glyphs["A"].layers[0]
+				except:
+					pass
 
 			# Expand self.jsonFile if char in current font in not present in the list
 			for glyph in self.font.glyphs:
