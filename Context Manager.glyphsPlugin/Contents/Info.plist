@@ -13,9 +13,9 @@
 	<key>CFBundleName</key>
 	<string>findContext</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.0.1</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>2</string>
 	<key>UpdateFeedURL</key>
 	<string>https://raw.githubusercontent.com/HugoJourdan/Context-Manager/blob/main/FindContext.glyphsPlugin/Contents/Info.plist</string>
 	<key>productPageURL</key>
